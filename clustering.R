@@ -4,7 +4,7 @@
 
 # Exercise 0: Install these packages if you don't have them already
 
-# install.packages(c("cluster", "rattle","NbClust"))
+install.packages(c("cluster", "rattle","NbClust"))
 
 # Now load the data and look at the first few rows
 data(wine, package="rattle")
@@ -12,7 +12,8 @@ head(wine)
 
 # Exercise 1: Remove the first column from the data and scale
 # it using the scale() function
-
+wine2 <- wine[c(-1)]
+scale(wine2)
 
 # Now we'd like to cluster the data using K-Means. 
 # How do we decide how many clusters to use if you don't know that already?
@@ -33,18 +34,22 @@ wssplot <- function(data, nc=15, seed=1234){
 	   }
 
 wssplot(df)
+wssplot(wine2)
 
 # Exercise 2:
 #   * How many clusters does this method suggest?
+      #3 or 4
 #   * Why does this method work? What's the intuition behind it?
+      #At some point as the number of clusters increase the cluster begins to overfit the data and eliminates
+      #the more "interesting" clusters.  It finds the point where there is a shift from "all data points are the same" to "all data points are unique"
 #   * Look at the code for wssplot() and figure out how it works
-
+      
 # Method 2: Use the NbClust library, which runs many experiments
 # and gives a distribution of potential number of clusters.
 
 library(NbClust)
 set.seed(1234)
-nc <- NbClust(df, min.nc=2, max.nc=15, method="kmeans")
+nc <- NbClust(wine2, min.nc=1, max.nc=15, method="kmeans")
 barplot(table(nc$Best.n[1,]),
 	          xlab="Numer of Clusters", ylab="Number of Criteria",
 		            main="Number of Clusters Chosen by 26 Criteria")
@@ -52,12 +57,15 @@ barplot(table(nc$Best.n[1,]),
 
 # Exercise 3: How many clusters does this method suggest?
 
+#2
 
 # Exercise 4: Once you've picked the number of clusters, run k-means 
 # using this number of clusters. Output the result of calling kmeans()
 # into a variable fit.km
 
-# fit.km <- kmeans( ... )
+fit.km <- kmeans(wine, 3, nstart = 30)
+fit.km$size
+
 
 # Now we want to evaluate how well this clustering does.
 
@@ -65,9 +73,15 @@ barplot(table(nc$Best.n[1,]),
 # compares to the actual wine types in wine$Type. Would you consider this a good
 # clustering?
 
+table(fit.km$cluster)
+table(wine$Type)
+
+#Yes
 
 # Exercise 6:
 # * Visualize these clusters using  function clusplot() from the cluster library
 # * Would you consider this a good clustering?
+library(cluster)
+clusplot(pam(wine2,3))
 
-#clusplot( ... )
+#No
